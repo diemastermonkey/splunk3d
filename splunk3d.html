@@ -57,7 +57,23 @@
 
       // Dev-only hardwired 3D/graphic assets
       var sTexturePath = "images/textures/";
-      var aTextures = ["orange", "indigo", "yellow", "green", "lava"];
+      var aTextures = [
+        "bark", "bedrock", "black", "blue", "bone", "brick2", 
+        "brick3", "brick", "brown", "carved", "clay", "coal",
+        "cobble", "concrete", "cpe", "cpn", "cps", "cpw", 
+        "cracked", "cs1", "cs_mo", "dirt2", "dirt3", "dirt", 
+        "glass", "gl_black", "gl_blue", "gl_green", 
+        "gl_magenta", "gl_white", "goldore", "granite", 
+        "graphpaper", "grass", "gravel", "green", "grunge", 
+        "ice", "indigo", "jungle", "lava", "leaf", 
+        "leaves", "metal", "mist", "moss", "mud", "oak", 
+        "orange", "ore", "purple", "red", "rock", "sand", 
+        "sb2", "sb_carved", "sb_moss2", "sb_moss", "sb", 
+        "sky", "slime", "smoke", "snow", "spruce", "sstone", 
+        "st2", "stone", "tblack", "tbrown", "torange", 
+        "trapdoor", "violet", "water", "white", "wood", 
+        "worn", "yellow"
+      ];
       var iTextureCount = aTextures.length;
       // var sSkyboxPath = "images/skyboxes/";
       var aSkyboxes   = ["alps", "arrakisday", "mainframe", 
@@ -91,8 +107,8 @@
       function fn3DTest (iArgMode) {
         var sT;
         fnCam (0, 600, 1000);         // Look at this pos
-        for (var iX = -1600; iX < 1600; iX += 900) {
-          for (var iY = -800; iY < 2200; iY += 900) {
+        for (var iX = -1200; iX < 1400; iX += 600) {
+          for (var iY = -1500; iY < 700; iY += 600) {
             sT = sTexturePath 
               + aTextures[Math.floor(Math.random() * iTextureCount)]
               + ".png"; 
@@ -110,19 +126,17 @@
       // producing unique visual object for each type of data
       function fnGenerateObject (argSeed) {
         //
-        //  INSERT CODE:
-        //        Create rng with Alea (argSeed)
-        // var oRNG = new alea (argSeed);
-        //        create properties for 
-        //          Texture, type (sphere, cube) and size
+        // Create rng with Alea (argSeed)
+        var oRNG = new alea (argSeed);
+        var sT = sTexturePath 
+           + aTextures[Math.floor(oRNG() * iTextureCount)]
+           + ".png"; 
+        var fSize = oRNG() * 40 + 10;         // Range 10-50
         //
-        // var sT = sTexturePath 
-        //   + aTextures[Math.floor(oRNG() * iTextureCount)]
-        //   + ".png"; 
+        // INSERT CODE: Set position (move later if need)
+        // BECAUSE need position as name to fnSetName
         //
-        // var fSize = oRNG() * 40 + 10;         // Range 10-50
-        //
-        // var iType = Math.floor (oRNG() * 2);  // Only two now
+        var iType = Math.floor (oRNG() * 2);  // Only two now
         // if (iType == 0) {
         //     // Make cube
         //     fnAddCube (iX, iY, 1600, 250, sT);
@@ -132,7 +146,13 @@
         //   // Make sphere
         // }
         // 
-        // Set object name (so can delete later)
+        // INSERT CODE: Set object name (so can delete later)
+        //
+        fnLog ("fnGenerateObject:"
+          + " Type " + iType
+          + " Texture " + sT
+          + " Size " + fSize
+        );
         // return (sObjectName);
         //
       }
@@ -276,6 +296,11 @@
               // fnOutput (" KV Pairs: " + results.rows[i][kvIndex]);
               fnOutput (" Raw: " + results.rows[i][rawIndex]);
               fnOutput ("<br>");
+
+              // Crude Dev test: Create 3D object right here
+              // To do: Return all results, iterate outside this
+              // Use entire raw results string as seed (!)
+              fnGenerateObject (results.rows[i][rawIndex]);
             }
             
             job.cancel(done);                // When done, cancel job
