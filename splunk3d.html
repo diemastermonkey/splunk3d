@@ -1,6 +1,34 @@
 <html>
-  <!-- Simple Splunk client connect example
-       Based on http://dev.splunk.com/view/javascript-sdk/SP-CAAAEC9
+  <!-- DronesoundTV (ThreeJS) / Splunk SDK mashup
+       Largely based on SDK examples
+       Memo: 3D features from js/splunkland-3d.js include:
+
+       fnSkybox (argPrefix)             // Set skybox by prefix
+       fnAddCube (argX, argY, argZ, argSize, argTextureURL)
+       fnAddSphere (argX, argY, argZ, argRadius, argTextureURL)
+       fnAddPlane (argX, argY, argZ, argSize, argXRot, argYRot, argTextureURL)
+       fnMakeText (argFontURL, argText, argX, argY, argZ)
+       fnAddPointLight (argPos, argColor)
+       fnCamSet (argX, argY, argZ)      // Set next cam look target
+       fnCam (argPos)                   // Tween to rand cam target or next
+
+       Set object by name (default name is "x y z" pos)
+       fnObjectName (argName)
+
+       Create a pulsing "user cursor"
+       fnUserCursor (argX, argY, argZ, argUserName)
+
+       Dev/incomplete/janky: Add cube with inline image id=media as texture:
+       fnMediaCube (argX, argY, argZ, argSize, argTextureURL)
+       Prune oldest prims if over limit
+       fnPrimLimit () 
+       fnPrimDelete (argPos)     // Delete by "x y z" pos arg string
+       fnDeleteByName (argName)  // Delete by name
+       fnObjectMove (argName, argX, argY, argZ)
+
+       Load a (.json) model from mod_sandbox/models:
+       fnLoadModel (argName, argX, argY, argZ)
+
   -->
   <head>
     <meta charset="utf-8">
@@ -78,14 +106,34 @@
         fnSkybox (aSkyboxes[Math.floor(Math.random() * iSkyboxCount)]);
       }
 
-      // Generate 3D prim properties based on argSeed,
+      // Generate 3D prim with properties based on argSeed,
       // producing unique visual object for each type of data
-      function fnGenerateProperties (argSeed) {
+      function fnGenerateObject (argSeed) {
         //
         //  INSERT CODE:
         //        Create rng with Alea (argSeed)
-        //        return set of properties for 
+        // var oRNG = new alea (argSeed);
+        //        create properties for 
         //          Texture, type (sphere, cube) and size
+        //
+        // var sT = sTexturePath 
+        //   + aTextures[Math.floor(oRNG() * iTextureCount)]
+        //   + ".png"; 
+        //
+        // var fSize = oRNG() * 40 + 10;         // Range 10-50
+        //
+        // var iType = Math.floor (oRNG() * 2);  // Only two now
+        // if (iType == 0) {
+        //     // Make cube
+        //     fnAddCube (iX, iY, 1600, 250, sT);
+        //     // Name it
+        // }
+        // else {
+        //   // Make sphere
+        // }
+        // 
+        // Set object name (so can delete later)
+        // return (sObjectName);
         //
       }
 
@@ -250,7 +298,6 @@
     <!-- Alea seedable prng, courtesy of ___________ 
       Example:
          var arng = new alea('hello.');
-         // By default provides 32 bits of randomness in a float.
          console.log(arng());    // Always 0.4783254903741181
     -->
   <script>
