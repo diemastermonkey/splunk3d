@@ -1,0 +1,269 @@
+<html>
+  <!-- Simple Splunk client connect example
+       Based on http://dev.splunk.com/view/javascript-sdk/SP-CAAAEC9
+  -->
+  <head>
+    <meta charset="utf-8">
+    <title>Splunk3d Prototype</title>
+
+    <!-- Jquery required for SplunkSDK and our own Ajax -->
+    <script type="text/javascript" src="js/jquery.min.js"></script>
+    <!-- Alt:
+      src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"
+    -->
+    <!-- Splunk JS SDK -->
+    <script type="text/javascript" src="client/splunk.js"></script>
+
+    <!-- Three.js support (see also: 3d.js must load in body) -->
+    <script type="text/javascript" src="js/three.min.js"></script>
+    <script type="text/javascript" src="js/GeometryUtils.js"></script>
+    <script type="text/javascript" src="js/Tween.js"></script>
+
+    <!-- Was: 3D controller ala DronesoundTV -->
+    <script type="text/javascript">
+      // Splunk.js helper objects
+      var Async = splunkjs.Async;
+      var utils = splunkjs.Utils;
+      var sBuffer = "";
+      var iDebug = false;         // Onscreen debug enable
+
+      // Dev-only hardwired 3D/graphic assets
+      var sTexturePath = "images/textures/";
+      var aTextures = ["orange", "indigo", "yellow", "green", "lava"];
+      var iTextureCount = aTextures.length;
+      // var sSkyboxPath = "images/skyboxes/";
+      var aSkyboxes   = ["alps", "arrakisday", "mainframe", 
+        "met", "moondust", "mp_portal", "nightsky", "test"];
+      var iSkyboxCount = aSkyboxes.length;
+
+      // Simple logging feature
+      function fnLog (argString) {
+        console.log ("Controller: " + argString);
+      }
+
+      // Output buffer/displayer/logger in one
+      // Pass empty string to clear-out
+      function fnOutput (argString) {
+        if (argString.length == 0) {   // To clear buffer
+          sBuffer = "";
+        } else {
+          sBuffer += argString;
+         fnLog (argString);
+        }
+        $("#uiTextOut").html(sBuffer); // Update (or clear)
+      }
+
+      // -------------------------------
+      // Simple 3D Tests
+      // -------------------------------
+      // Broken?
+      // fnMakeText ("assets/droid_serif_regular.typeface.json", "X", iX, iY, 0);
+
+      // 3D spam. Remember, fnAddCube pre-deletes any existing at same pos
+      function fn3DTest (iArgMode) {
+        var sT;
+        fnCam (0, 600, 1000);         // Look at this pos
+        for (var iX = -1600; iX < 1600; iX += 900) {
+          for (var iY = -800; iY < 2200; iY += 900) {
+            sT = sTexturePath 
+              + aTextures[Math.floor(Math.random() * iTextureCount)]
+              + ".png"; 
+            // fnAddCube syntax: x y z size texture_url
+            fnAddCube (iX, iY, 1300, 250, sT);
+          }                           // End for
+        }                             // End for
+      }                               // End 3D test function
+
+      function fnSkyboxRand () {
+        fnSkybox (aSkyboxes[Math.floor(Math.random() * iSkyboxCount)]);
+      }
+
+    </script>
+    <!-- End 3D controller code -->
+
+    <!-- Splunk App code (largely from examples) -->
+    <script type="text/javascript" charset="utf-8">
+      var oSplunkProxy = null;        // Glob proxy to Splunk
+      var oSplunkService = null;      // Splunk connection service
+      // Default Splunk search syntax
+      // Note: Omits "search" so matches SplunkWeb
+      // og // var sSPL = "search index=_internal | head 3";
+      var sSearchPrefix = "search ";  // Pre-pended later
+      var sSPL = "index=_internal | head 3";
+  
+      // Smrt Splunk connect handler: 
+      // Create proxy/connection only if needed
+      function fnConnect () {
+        if (oSplunkProxy == null || oSplunkService == null) {
+          console.log ("fnConnect: Connecting to Splunk via JS proxy...");
+  
+          // Tunnel requests through splunkjs proxy cause Single Origin Policy
+          oSplunkProxy = new splunkjs.ProxyHttp ("/proxy");
+  
+          // Create a Service instance and log in 
+          oSplunkService = new splunkjs.Service (oSplunkProxy, {
+            username: "splunksdk",   // WARN: Hardwired creds
+            password: "splunksdk",
+            scheme: "https",
+            host: "localhost",
+            port:"8089",             // Splunkd port (NOT splunk web)
+            version:"5.0"
+          });
+          console.log ("fnConnect: Splunk connected, maybe.");
+        } else {
+          console.log ("fnConnect: Splunk already connected.");
+        }                            // End if proxy/service
+      }                              // End fnConnect
+  
+      // From example code: List apps (assume connected already)
+      function fnDisplayApps() {
+        fnOutput ("");               // Clear output buffer/ui
+        fnConnect();                 // Connect Splunk if necessary
+
+        // Print installed apps to the console
+        // Provide apps().fetch an anonymous callback w/err handler 
+        oSplunkService.apps().fetch (function(err, argApps) {
+          if (err) {                 // Ditch on error
+            fnOutput ("");
+            fnOutput ("Splunk Service: Error listing apps");
+            return;
+          }
+
+          // Else, iterate apps and stuff into document
+          var sApps = "";
+          var oAppsList = argApps.list();
+          for(var i=0; i < oAppsList.length; i++) {
+            sApps += oAppsList[i].name + " "
+          } 
+          fnOutput(sApps);
+        });                           // End anon fetch callback
+
+      }                               // End function
+
+      // Example one-off splunk search, based on
+      // http://localhost:6969/examples/browser/helloworld/index.html
+      // To do: Handle connect errors, convert to non-Async chain
+      function fnSplunkSearch () {
+        fnOutput ("");                // Clear output buffer/ui
+        fnConnect();                  // Connect if necessary
+
+        // Get search syntax from UI (to do: minimal validation?)
+        if ($("#uiTextIn").val().length) { 
+          sSPL = $("#uiTextIn").val();
+        }
+
+        fnOutput ("Executing: " + sSPL +  "<br>One moment...");
+
+        Async.chain ([                // Entire transaction as async chain
+
+          function (done) {           // Handle error, initiate search
+            // if (!success) {        // To do, handle errors
+            //   fnLog ("Error logging in"); // done("Error logging in");
+            // }
+            oSplunkService.search (sSearchPrefix + sSPL, {}, done);
+          },
+
+          // Wait until the job is done
+          function (argJob, done) {
+            Async.whilst (                  // Loop till done
+              function() { return !argJob.properties().isDone; },
+
+              // Refresh the job on every iteration, but sleep for 1 second
+              function (iterationDone) {
+                Async.sleep (1000, function() {       // 1s delay
+                  // Refresh job, noting how many events so far
+                  argJob.fetch (function(err) {
+                    fnOutput ("Fetching: " 
+                      + (argJob.properties().eventCount || 0) 
+                      + " events searched");
+                    iterationDone();
+                  });                        // End argJob.fetch anon callback func
+                });                          // End async sleep delay func
+              },                             // End async whilst anon callback func
+
+              // When done, pass the job forward
+              function (err) {
+                fnOutput ("Search: job done");
+                done (err, argJob);
+              }
+            );                               // End async whilst
+          },                                 // End anon func "wait till job done"
+
+          // Search done, print stats and retrieve results
+          function (argJob, done) {
+            fnOutput ("");                   // Clear output
+            fnOutput ("Search job statistics: ");
+            fnOutput (" Count: " + argJob.properties().eventCount);
+            fnOutput (" Disk: " + argJob.properties().diskUsage + " bytes");
+            fnOutput (" Priority: " + argJob.properties().priority);
+            argJob.results({}, done);        // Request results
+          },
+
+          function (results, job, done) {    // Show raw results
+            // Find the index of the fields we want
+            var rawIndex        = utils.indexOf(results.fields, "_raw");
+            var sourcetypeIndex = utils.indexOf(results.fields, "sourcetype");
+            var userIndex       = utils.indexOf(results.fields, "user");
+
+            fnOutput ("<br><br>");          // Handle individual kv results
+            for (var i = 0; i < results.rows.length; i++) {
+              // fnOutput ("Result " + i + ": ");
+              fnOutput ("Sourcetype: " + results.rows[i][sourcetypeIndex]);
+              fnOutput (" User: " + results.rows[i][userIndex]);
+              fnOutput (" Raw: " + results.rows[i][rawIndex]);
+              fnOutput ("<br>");
+            }
+            
+            job.cancel(done);                // When done, cancel job
+          }                                  // End print results anon func
+        ],                                   // End async function array
+
+        function (err) {fnCallback(err);}    // Async error handler
+        );                                   // End async, finally
+
+      }                                      // End fnRealTimeSearch function
+
+      // Handle Async callbacks (generally, errors)
+      function fnCallback (argMsg) {
+        fnLog ("Callback receieved: " + argMsg);
+      }
+
+    </script>
+    <!-- End Splunk app code -->
+
+
+</head>
+
+<body>
+  <!-- On document ready, init some fields -->
+  <script type="text/javascript">
+    $(document).ready(function() {$("#uiTextIn").val(sSPL);});
+  </script>
+
+  <!-- User interface -->
+  <div id="controls" style="width:100%; margin-bottom:1em;">
+    <!-- Dev testing UI -->
+    <button type="button" onClick="fnSkyboxRand();">Skybox</button>
+    <button type="button" onClick="fn3DTest();">3D Spam</button>
+    <button type="button" onClick="fnDisplayApps();">List apps</button>
+    <button type="button" onClick="fnSplunkSearch();">Splunk Search</button>
+  </div>
+
+  <span>Input</span>
+  <input id="uiTextIn" type="text" size="48">
+
+  <p id="uiTextOut" style="font-size:0.8em;"></p>      <!-- Text output element -->
+
+  <!-- ThreeJS does all 3D in threejs div 
+       Note: 3D canvas size set by fnInit in splunkland-3d.js
+  -->
+  <div id="threejs"
+       style="top:0; left:0; padding:0;">
+  </div>  
+  <!-- All 3d implemented in 3d.js (MUST load in body)
+       Note splunkland-3d.js:fnInit() called on load (see its mainline)
+  -->
+  <script type="text/javascript" src="js/splunkland-3d.js"></script>
+
+</body>
+</html>
