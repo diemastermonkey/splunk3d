@@ -2,6 +2,8 @@
 
 A mashup of DronesoundTV and Splunk Javascript SDK
 
+Requirements: Splunk 5.x +, Splunk Javascript SDK (w/Node.js), JQuery, Three.js, Tween.js
+
 See Wiki https://github.com/diemastermonkey/splunk3d/wiki
 
 # Goals / features (* working)
