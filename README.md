@@ -1,5 +1,7 @@
 # Splunk3d - WORK IN PROGRESS
+
 A mashup of DronesoundTV and Splunk Javascript SDK
+
 See Wiki https://github.com/diemastermonkey/splunk3d/wiki
 
 # Goals / features (* working)
