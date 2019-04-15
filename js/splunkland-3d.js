@@ -644,7 +644,7 @@ function render () {
 
   // New: Keep point light AND LapLight fixed to/at cam
   // oCamLight.position.set (oCamPos);
-  oLampLight.lookAt (oLookAt);
+  // oLampLight.lookAt (oLookAt);
   // RETIRED // fnMoonOrbit();                 // New: Orbit moon
 
   renderer.render (scene, camera);  // Actually update scene
@@ -907,7 +907,7 @@ camera.lookAt (0, 0, 0);
 
 // Default skybox (users can change, replacing 'skybox' object)
 // Others: mp_portal hangingstone velcor alps mainframe nightsky classmplanet organic
-fnSkybox("earth");
+fnSkybox("alps");
 
 // Fog (see also renderer...) disabled for perf
 // scene.fog = new THREE.Fog (0x000000, 1, 6000);
@@ -979,12 +979,12 @@ scene.add (oCamLight); // disabled
 // Lamps 
 
 // From side above 
-var oLampLight = new THREE.PointLight (0xffffff, 0.70, 25500);
-oLampLight.position.set (-3050, 4207, -3576);
-oLampLight.castShadow = true;
-oLampLight.lookAt (0,0,0);  // See also render 
-oLampLight.name = "lamp";
-scene.add (oLampLight);
+// var oLampLight = new THREE.PointLight (0xffffff, 0.70, 25500);
+// oLampLight.position.set (-3050, 4207, -3576);
+// oLampLight.castShadow = true;
+// oLampLight.lookAt (0,0,0);  // See also render 
+// oLampLight.name = "lamp";
+// scene.add (oLampLight);
 
 // 'skylight' from above
 var directionalLight = new THREE.DirectionalLight (0xffffff, 0.08);

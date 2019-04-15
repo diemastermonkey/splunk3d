@@ -69,7 +69,7 @@
               + aTextures[Math.floor(Math.random() * iTextureCount)]
               + ".png"; 
             // fnAddCube syntax: x y z size texture_url
-            fnAddCube (iX, iY, 1300, 250, sT);
+            fnAddCube (iX, iY, 1600, 250, sT);
           }                           // End for
         }                             // End for
       }                               // End 3D test function
@@ -202,14 +202,19 @@
           function (results, job, done) {    // Show raw results
             // Find the index of the fields we want
             var rawIndex        = utils.indexOf(results.fields, "_raw");
+            var kvIndex        = utils.indexOf(results.fields, "_kv");
             var sourcetypeIndex = utils.indexOf(results.fields, "sourcetype");
-            var userIndex       = utils.indexOf(results.fields, "user");
+            // var userIndex       = utils.indexOf(results.fields, "user");
 
-            fnOutput ("<br><br>");          // Handle individual kv results
+            fnOutput ("<br>Fields in results: " + results.fields);
+            fnOutput ("<br>----------------------------------<br>");
+
+            // Handle individual result rows
             for (var i = 0; i < results.rows.length; i++) {
               // fnOutput ("Result " + i + ": ");
-              fnOutput ("Sourcetype: " + results.rows[i][sourcetypeIndex]);
-              fnOutput (" User: " + results.rows[i][userIndex]);
+              fnOutput ("Sourcetype: " + results.rows[i][sourcetypeIndex] + " | ");
+              // fnOutput (" User: " + results.rows[i][userIndex]);
+              // fnOutput (" KV Pairs: " + results.rows[i][kvIndex]);
               fnOutput (" Raw: " + results.rows[i][rawIndex]);
               fnOutput ("<br>");
             }
@@ -231,6 +236,15 @@
     </script>
     <!-- End Splunk app code -->
 
+    <!-- Alea seedable prng, courtesy of ___________ 
+      Example:
+         var arng = new alea('hello.');
+         // By default provides 32 bits of randomness in a float.
+         console.log(arng());    // Always 0.4783254903741181
+    -->
+  <script>
+    !function(n,t,e){function o(n){var s,t=this,e=(s=4022871197,function(n){n=n.toString();for(var t=0;t<n.length;t++){var e=.02519603282416938*(s+=n.charCodeAt(t));e-=s=e>>>0,s=(e*=s)>>>0,s+=4294967296*(e-=s)}return 2.3283064365386963e-10*(s>>>0)});t.next=function(){var n=2091639*t.s0+2.3283064365386963e-10*t.c;return t.s0=t.s1,t.s1=t.s2,t.s2=n-(t.c=0|n)},t.c=1,t.s0=e(" "),t.s1=e(" "),t.s2=e(" "),t.s0-=e(n),t.s0<0&&(t.s0+=1),t.s1-=e(n),t.s1<0&&(t.s1+=1),t.s2-=e(n),t.s2<0&&(t.s2+=1),e=null}function u(n,t){return t.c=n.c,t.s0=n.s0,t.s1=n.s1,t.s2=n.s2,t}function s(n,t){var e=new o(n),s=t&&t.state,r=e.next;return r.int32=function(){return 4294967296*e.next()|0},r.double=function(){return r()+11102230246251565e-32*(2097152*r()|0)},r.quick=r,s&&("object"==typeof s&&u(s,e),r.state=function(){return u(e,{})}),r}t&&t.exports?t.exports=s:e&&e.amd?e(function(){return s}):this.alea=s}(0,"object"==typeof module&&module,"function"==typeof define&&define);
+  </script>
 
 </head>
 
