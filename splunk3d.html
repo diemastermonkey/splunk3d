@@ -128,6 +128,13 @@
         //
         // Create rng with Alea (argSeed)
         var oRNG = new alea (argSeed);
+
+        // Set texture
+        // ALSO: Try passing RGB, because (from splunkland-3d.js):
+        // "On load fail, try treating as '0xRRGGBB' hex, on color"
+        // UPDATE: ^-- DOES work, on cubes only tho! Fix source
+        // To do: Procgen color based on some element of event
+        //
         var sT = sTexturePath 
            + aTextures[Math.floor(oRNG() * iTextureCount)]
            + ".png"; 
@@ -142,6 +149,7 @@
         var iType = Math.floor (oRNG() * 2);  // Only two now
         if (iType == 0) {
           // Make cube at known position (so can rename)
+          sT = "0x00ff00";   // CHEAT RGB TEST (see note above) !
           fnAddCube (iX, iY, iZ, fSize, sT);
           //
           // Name it
