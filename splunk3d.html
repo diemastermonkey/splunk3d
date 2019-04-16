@@ -131,20 +131,30 @@
         var sT = sTexturePath 
            + aTextures[Math.floor(oRNG() * iTextureCount)]
            + ".png"; 
-        var fSize = oRNG() * 40 + 10;         // Range 10-50
-        //
-        // INSERT CODE: Set position (move later if need)
+        var fSize = oRNG() * 200 + 100;       // Range 100-300
+
+        // Set a known position (move later if need)
         // BECAUSE need position as name to fnSetName
-        //
+        var iX = Math.floor(oRNG() * 2000) - 1000; // Also a range
+        var iY = Math.floor(oRNG() * 2000) - 1000;
+        var iZ = 1000;
+
         var iType = Math.floor (oRNG() * 2);  // Only two now
-        // if (iType == 0) {
-        //     // Make cube
-        //     fnAddCube (iX, iY, 1600, 250, sT);
-        //     // Name it
-        // }
-        // else {
-        //   // Make sphere
-        // }
+        if (iType == 0) {
+          // Make cube at known position (so can rename)
+          fnAddCube (iX, iY, iZ, fSize, sT);
+          //
+          // Name it
+          //
+        } else {
+          // Make sphere
+         fnAddSphere (iX, iY, iZ, fSize, sT);
+        }
+
+        // Look at new object
+        fnCamSet (0, 0, 1000);
+        // fnCam();
+
         // 
         // INSERT CODE: Set object name (so can delete later)
         //
