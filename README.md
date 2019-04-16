@@ -4,7 +4,7 @@ A mashup of DronesoundTV and Splunk Javascript SDK
 
 Requirements: Splunk 5.x +, Splunk Javascript SDK (w/Node.js), JQuery, Three.js, Tween.js
 
-See Wiki https://github.com/diemastermonkey/splunk3d/wiki
+See Wiki https://github.com/diemastermonkey/splunk3d/wiki for more info/screenshots
 
 # Goals / features (* working)
   - Basic "3D Sandbox" from DTV *
