@@ -1,7 +1,7 @@
 <html>
   <!-- DronesoundTV (ThreeJS) / Splunk SDK mashup
        Largely based on SDK examples
-       Memo: 3D features from js/splunkland-3d.js include:
+       Reminder: Features from js/splunkland-3d.js include:
 
        fnSkybox (argPrefix)             // Set skybox by prefix
        fnAddCube (argX, argY, argZ, argSize, argTextureURL)
@@ -28,7 +28,6 @@
 
        Load a (.json) model from mod_sandbox/models:
        fnLoadModel (argName, argX, argY, argZ)
-
   -->
   <head>
     <meta charset="utf-8">
@@ -76,7 +75,6 @@
         "worn", "yellow"
       ];
       var iTextureCount = aTextures.length;
-      // var sSkyboxPath = "images/skyboxes/";
       var aSkyboxes   = ["alps", "arrakisday", "mainframe", 
         "met", "moondust", "mp_portal", "nightsky", "test"];
       var iSkyboxCount = aSkyboxes.length;
@@ -93,7 +91,7 @@
           sBuffer = "";
         } else {
           sBuffer += argString;
-         fnLog (argString);
+          fnLog (argString);
         }
         $("#uiTextOut").html(sBuffer); // Update (or clear)
       }
@@ -101,8 +99,6 @@
       // -------------------------------
       // Simple 3D Tests
       // -------------------------------
-      // Broken?
-      // fnMakeText ("assets/droid_serif_regular.typeface.json", "X", iX, iY, 0);
 
       // 3D spam. Remember, fnAddCube pre-deletes any existing at same pos
       function fn3DTest (iArgMode) {
@@ -130,12 +126,8 @@
         // Create rng with Alea (argSeed)
         var oRNG = new alea (argSeed);
 
-        // Set texture
-        // ALSO: Try passing RGB, because (from splunkland-3d.js):
-        // "On load fail, try treating as '0xRRGGBB' hex, on color"
-        // UPDATE: ^-- DOES work, on cubes only tho! Fix source
+        // Set texture (or "0xRRGGBB" manual color!)
         // To do: Procgen color based on some element of event
-        //
         var sT = sTexturePath 
            + aTextures[Math.floor(oRNG() * iTextureCount)]
            + ".png"; 
@@ -152,11 +144,10 @@
           // Make cube at known position (so can rename)
           fnAddCube (iX, iY, iZ, fSize, sT);
           //
-          // Name it
+          // To do: Name it
           //
-        } else {
-          // Make sphere
-          sT = "0x00ff00";   // CHEAT RGB TEST (see note above) !
+        } else {             // Else make a sphere
+          sT = "0x00ff00";   // RGB syntax cheat test
           fnAddSphere (iX, iY, iZ, fSize, sT);
         }
 
@@ -165,14 +156,15 @@
         fnCam();
 
         // 
-        // INSERT CODE: Set object name (so can delete later)
+        // INSERT CODE HERE: Set object name (so can delete later)
         //
         fnLog ("fnGenerateObject:"
           + " Type " + iType
           + " Texture " + sT
           + " Size " + fSize
         );
-        // return (sObjectName);
+        //
+        // TO DO: return (sObjectName);
         //
       }
 
@@ -188,23 +180,22 @@
       var sSearchPrefix = "search ";  // Pre-pended later
       var sSPL = sDefaultSPL;
   
-      // Smrt Splunk connect handler: 
-      // Create proxy/connection only if needed
+      // Smrt Splunk connect: Connect only if needed
       function fnConnect () {
         if (oSplunkProxy == null || oSplunkService == null) {
           console.log ("fnConnect: Connecting to Splunk via JS proxy...");
   
-          // Tunnel requests through splunkjs proxy cause Single Origin Policy
+          // Tunnel via splunkjs proxy cause Single Origin Policy
           oSplunkProxy = new splunkjs.ProxyHttp ("/proxy");
   
-          // Create a Service instance and log in 
+          // Create Splunk Service instance and log in 
           oSplunkService = new splunkjs.Service (oSplunkProxy, {
             username: "splunksdk",   // WARN: Hardwired creds
             password: "splunksdk",
             scheme: "https",
             host: "localhost",
             port:"8089",             // Splunkd port (NOT splunk web)
-            version:"5.0"
+            version:"5.0"            // Min supported version
           });
           console.log ("fnConnect: Splunk connected, maybe.");
         } else {
@@ -252,7 +243,6 @@
         fnOutput ("Executing: " + sSPL +  "\nOne moment...");
 
         Async.chain ([                // Entire transaction as async chain
-
           function (done) {           // Handle error, initiate search
             // if (!success) {        // To do, handle errors
             //   fnLog ("Error logging in"); // done("Error logging in");

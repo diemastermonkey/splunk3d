@@ -179,37 +179,39 @@ function fnCreateText (argText, argX, argY, argZ) {
 } // End function fnCreateText
 
 // Add sphere 
+// 20190416: Support "0xRRGGBB" (manual color) tex arg
+// OG, faster // tempMat = new THREE.MeshBasicMaterial();
 function fnAddSphere (argX, argY, argZ, argRadius, argTextureURL) {
   var tempTex, tempMat;
 
-  // 20190416: Support "0xRRGGBB" (manual color) tex arg
-  tempMat = new THREE.MeshBasicMaterial();
+  tempMat = new THREE.MeshPhongMaterial(); // Shaded or looks flat
   if (! argTextureURL.startsWith("0x")) {
     tempTex = THREE.ImageUtils.loadTexture (argTextureURL);
     tempMat.map = tempTex;
   } else {                  // Blindly attempt as hex
-    // tempMat.map = null;  // Must invalidate or applied below
     tempMat.color.setHex(parseInt(argTextureURL, 16)); // hex only
   }
 
-  // OG // var tempTex = THREE.ImageUtils.loadTexture (argTextureURL);
-  // OG // tempMat = new THREE.MeshBasicMaterial({map: tempTex});
-
-  // Neither are working:
-  // var tempMat = new THREE.MeshLambertMaterial({map: tempTex});
-  // var tempMat = new THREE.MeshToonMaterial ({map:tempTex});
   var tempObj = new THREE.Mesh (
     new THREE.SphereGeometry (
       argRadius, iSphereFaces, iSphereFaces
     ), 
     tempMat
   );
-  tempObj.position.y = argY; // Altitude
+
+  // Set position, rotation, and add to scene
   tempObj.position.x = argX;
+  tempObj.position.y = argY;
   tempObj.position.z = argZ;
-  // ROTATION CURRENTLY RANDOM - fix that
   tempObj.rotation.y = - Math.PI / Math.random() * 2;        
   tempObj.rotation.z = - Math.PI / Math.random() * 2;        
+
+  // Delete any pre-existing prim at target position
+  fnPrimDelete (tempObj.position);            // Fail ignored
+  
+  // Set name (used to reference later, for delete, etc)
+  tempObj.name = argX + " " + argY + " " + argZ;
+
   scene.add (tempObj); 
 }
 
@@ -221,23 +223,22 @@ function fnAddPlane (argX, argY, argZ, argSize,
   var tempObj = new THREE.Mesh (
     new THREE.PlaneGeometry (argSize, argSize),
       new THREE.MeshBasicMaterial ({		// Faster
-      // new THREE.MeshLambertMaterial ({	// Responds to light
       map: new THREE.ImageUtils.loadTexture (argTextureURL),
       color: sRandColors[Math.round (Math.random() * 8)],
       // reflectivity: 0.9, 
-      // lights: true,                      // Light affects (default)
-      transparent: true,                 // For alpha ch
-      doubleSided: true,                 // Doesn't seem to work
-      opacity: fPlaneOpacity,            // Nice effect 
+      // lights: true,                  // Light affects (default)
+      transparent: true,                // For alpha ch
+      doubleSided: true,                // Doesn't seem to work
+      opacity: fPlaneOpacity,           // Nice effect 
       wireframe: false,
-      // shading: THREE.SmoothShading       // Default
-      shading: THREE.FlatShading  // Faster
-    })                          // End Mesh material
-  );                            // End Mesh
-  tempObj.doubleSided = true;   // No working
-  // tempObj.receiveShadow = true; // Untested
-  tempObj.position.y = argY; // Altitude
+      // shading: THREE.SmoothShading   // Default
+      shading: THREE.FlatShading        // Faster
+    })                                  // End Mesh material
+  );                                    // End Mesh
+  tempObj.doubleSided = true;           // No working
+  // tempObj.receiveShadow = true;      // Untested
   tempObj.position.x = argX;
+  tempObj.position.y = argY;
   tempObj.position.z = argZ;
   if (argYRot != 0) { tempObj.rotation.y = Math.PI * argYRot * 2; }
   if (argXRot != 0) { tempObj.rotation.x = Math.PI * argXRot * 2; }
@@ -303,8 +304,8 @@ function fnAddCube (argX, argY, argZ, argSize, argTextureURL) {
       tempMat.map = tempTex;   // Shorten w/above
     }
   } else {                 // Blindly attempt as hex
-      tempMat.map = null;  // Must invalidate or applied below
-      tempMat.color.setHex(parseInt(argTextureURL, 16)); // hex only
+    tempMat.map = null;  // Must invalidate or applied below
+    tempMat.color.setHex(parseInt(argTextureURL, 16)); // hex only
   }
   tempMat.update();    // 'dispatch update' - dox - reqd???
 
