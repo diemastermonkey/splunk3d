@@ -53,7 +53,8 @@
       var Async = splunkjs.Async;
       var utils = splunkjs.Utils;
       var sBuffer = "";
-      var iDebug = false;         // Onscreen debug enable
+      // retire // var iDebug = false;         // Onscreen debug enable
+      var sDefaultSPL = "earliest = -8h | head 10"; // Default search
 
       // Dev-only hardwired 3D/graphic assets
       var sTexturePath = "images/textures/";
@@ -149,19 +150,19 @@
         var iType = Math.floor (oRNG() * 2);  // Only two now
         if (iType == 0) {
           // Make cube at known position (so can rename)
-          sT = "0x00ff00";   // CHEAT RGB TEST (see note above) !
           fnAddCube (iX, iY, iZ, fSize, sT);
           //
           // Name it
           //
         } else {
           // Make sphere
-         fnAddSphere (iX, iY, iZ, fSize, sT);
+          sT = "0x00ff00";   // CHEAT RGB TEST (see note above) !
+          fnAddSphere (iX, iY, iZ, fSize, sT);
         }
 
         // Look at new object
         fnCamSet (0, 0, 1000);
-        // fnCam();
+        fnCam();
 
         // 
         // INSERT CODE: Set object name (so can delete later)
@@ -184,9 +185,8 @@
       var oSplunkService = null;      // Splunk connection service
       // Default Splunk search syntax
       // Note: Omits "search" so matches SplunkWeb
-      // og // var sSPL = "search index=_internal | head 3";
       var sSearchPrefix = "search ";  // Pre-pended later
-      var sSPL = "index=_internal | head 3";
+      var sSPL = sDefaultSPL;
   
       // Smrt Splunk connect handler: 
       // Create proxy/connection only if needed
@@ -249,7 +249,7 @@
           sSPL = $("#uiTextIn").val();
         }
 
-        fnOutput ("Executing: " + sSPL +  "<br>One moment...");
+        fnOutput ("Executing: " + sSPL +  "\nOne moment...");
 
         Async.chain ([                // Entire transaction as async chain
 
@@ -303,8 +303,8 @@
             var sourcetypeIndex = utils.indexOf(results.fields, "sourcetype");
             // var userIndex       = utils.indexOf(results.fields, "user");
 
-            fnOutput ("<br>Fields in results: " + results.fields);
-            fnOutput ("<br>----------------------------------<br>");
+            fnOutput ("\nFields in results: " + results.fields);
+            fnOutput ("\n----------------------------------\n");
 
             // Handle individual result rows
             for (var i = 0; i < results.rows.length; i++) {
@@ -313,7 +313,7 @@
               // fnOutput (" User: " + results.rows[i][userIndex]);
               // fnOutput (" KV Pairs: " + results.rows[i][kvIndex]);
               fnOutput (" Raw: " + results.rows[i][rawIndex]);
-              fnOutput ("<br>");
+              fnOutput ("\n");
 
               // Crude Dev test: Create 3D object right here
               // To do: Return all results, iterate outside this

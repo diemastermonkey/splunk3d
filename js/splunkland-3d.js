@@ -49,7 +49,7 @@ var fPlaneOpacity = 0.70;
 var iBoxSize = 100;           // Size of standard 'voxel'
 
 // Chat lobby
-var iSphereFaces = 5; // Smaller performs better
+var iSphereFaces = 9; // Smaller performs better
 var fLobbyHome = { x: 0, y: 0, z: -300 };
 
 // Fonts and text stuff
@@ -61,9 +61,9 @@ var oGlobalText = "SplunkLand3D", fontWeight = "bold";
 var oAmbientLight; // RETIRED , oCamLight;
 
 // Random colors
-var sColors = new Array (
-  0xffffff, 0xffffff, 0xffffff, 0xffffff,
-  0xffffff, 0xffffff, 0xffffff, 0xffffff
+var sRandColors = new Array (
+  0xff0000, 0x00ff00, 0x0000ff, 0xffff00,
+  0x00ffff, 0xff00ff, 0xffffff, 0x000000
 );
 
 // Seedable PRNG as object
@@ -180,14 +180,30 @@ function fnCreateText (argText, argX, argY, argZ) {
 
 // Add sphere 
 function fnAddSphere (argX, argY, argZ, argRadius, argTextureURL) {
-  var tempTex = THREE.ImageUtils.loadTexture (argTextureURL);
-  var tempMat = new THREE.MeshBasicMaterial({map: tempTex});
+  var tempTex, tempMat;
+
+  // 20190416: Support "0xRRGGBB" (manual color) tex arg
+  tempMat = new THREE.MeshBasicMaterial();
+  if (! argTextureURL.startsWith("0x")) {
+    tempTex = THREE.ImageUtils.loadTexture (argTextureURL);
+    tempMat.map = tempTex;
+  } else {                  // Blindly attempt as hex
+    // tempMat.map = null;  // Must invalidate or applied below
+    tempMat.color.setHex(parseInt(argTextureURL, 16)); // hex only
+  }
+
+  // OG // var tempTex = THREE.ImageUtils.loadTexture (argTextureURL);
+  // OG // tempMat = new THREE.MeshBasicMaterial({map: tempTex});
+
+  // Neither are working:
   // var tempMat = new THREE.MeshLambertMaterial({map: tempTex});
-  // not working // var tempMat = new THREE.MeshToonMaterial ({map:tempTex});
+  // var tempMat = new THREE.MeshToonMaterial ({map:tempTex});
   var tempObj = new THREE.Mesh (
     new THREE.SphereGeometry (
-      argRadius, iSphereFaces, iSphereFaces), 
-    tempMat);
+      argRadius, iSphereFaces, iSphereFaces
+    ), 
+    tempMat
+  );
   tempObj.position.y = argY; // Altitude
   tempObj.position.x = argX;
   tempObj.position.z = argZ;
@@ -207,7 +223,7 @@ function fnAddPlane (argX, argY, argZ, argSize,
       new THREE.MeshBasicMaterial ({		// Faster
       // new THREE.MeshLambertMaterial ({	// Responds to light
       map: new THREE.ImageUtils.loadTexture (argTextureURL),
-      color: sColors[Math.round (Math.random() * 8)],
+      color: sRandColors[Math.round (Math.random() * 8)],
       // reflectivity: 0.9, 
       // lights: true,                      // Light affects (default)
       transparent: true,                 // For alpha ch
