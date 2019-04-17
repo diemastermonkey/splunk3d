@@ -356,7 +356,7 @@
   </script>
 
   <!-- User interface -->
-  <div id="controls" style="width:100%; margin-bottom:1em;">
+  <div id="controls" style="margin-bottom:1em;align:right;">
     <!-- Dev testing UI -->
     <button type="button" onClick="fnSkyboxRand();">Skybox</button>
     <button type="button" onClick="fn3DTest();">3D Spam</button>
@@ -364,10 +364,15 @@
     <button type="button" onClick="fnSplunkSearch();">Splunk Search</button>
   </div>
 
-  <span>Input</span>
-  <input id="uiTextIn" type="text" size="48">
+  Input<br/>
+  <input id="uiTextIn" type="text" size="74">
+  <br/>
 
-  <p id="uiTextOut" style="font-size:0.8em;"></p>      <!-- Text output element -->
+  <!-- Text output element -->
+  Output<br/>
+  <textarea id="uiTextOut" rows="7"
+    style="font-size:0.8em;width:95%;"></textarea>
+  <br/>
 
   <!-- ThreeJS does all 3D in threejs div 
        Note: 3D canvas size set by fnInit in splunkland-3d.js
