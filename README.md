@@ -1,7 +1,8 @@
-# Splunk3d - WORK IN PROGRESS
+# Splunk3d (Work In Progress)
 
-A mashup of DronesoundTV and Splunk Javascript SDK
-New! See early demo video: https://github.com/diemastermonkey/splunk3d/blob/master/screenshots/splunk3d-dev-demo-001.ogv
+Mashup of DronesoundTV and Splunk Javascript SDK
+
+New! Early demo vid (d/l): https://github.com/diemastermonkey/splunk3d/blob/master/screenshots/splunk3d-dev-demo-001.ogv
 
 Requirements: Splunk 5.x +, Splunk Javascript SDK (w/Node.js), JQuery, Three.js, Tween.js
 
