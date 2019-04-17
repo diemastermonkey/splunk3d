@@ -12,6 +12,7 @@ See Wiki https://github.com/diemastermonkey/splunk3d/wiki for more info/screensh
   - Splunk arbitrary search *
   - Sourcetype object representation *
   - System deets/creds entry form
+  - Resizable (or better integrated) 3D area
   - "Fountain"-style event visualization (w/Tween)
   - Waterfall-ish event-to-object visualization 
   - On-screen "Legend" mapping objects to data types/details
