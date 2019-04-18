@@ -165,7 +165,8 @@
 
         // New: All events are spheres
         // To do: procgen color
-        sT = "0x00ff00";   // RGB syntax cheat test
+        // sT = "0x00ff00";   // RGB syntax cheat test
+        sT = fnRandomRGB (oRNG);
         fnAddSphere (iX, iY, iZ, fSize, sT);
 
         // Look at new object
@@ -226,6 +227,14 @@
           }                           // End for
         }                             // End for
       }                               // End 3D test function
+
+      // Return a random RGB string in form "0xRRGGBB"
+      // Pass-in Math.random, or other RNG (ex: alea)
+      function fnRandomRGB (argORNG) {
+        return (
+          "0x" + Math.floor(argORNG()*16777215).toString(16)
+        );
+      }
 
     </script>
     <!-- End 3D controller code -->
