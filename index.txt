@@ -1,0 +1,19 @@
+IMPORTANT: Dev prototype only - proper licenses not in place.
+
+# Splunk3D Prototype
+splunk3d.html	  Splunk3D demo
+assets/*        Various assets: Fonts, etc
+images/*        Textures and skybox images
+screenshots/*   Example screen shots
+js/*            Splunk3D, JQuery, Tween and related JS
+*.txt           Various informative notes
+
+# Splunk SDK for Javascript
+client/*        JS shipped with SDK
+bin/*           Cli.js (Splunk conduit)
+
+# NodeJS Stuff
+package.json    Required by NodeJS server
+node_modules/*  NodeJS support files
+contrib/*
+lib/*
