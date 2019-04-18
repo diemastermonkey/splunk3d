@@ -386,7 +386,6 @@
     <!-- Dev testing UI -->
     <button type="button" onClick="fnCredsUI();">Server</button>
     <span id="uiFeatures">
-      <button type="button" onClick="fnSplunkSearch();">Search</button>
       <button type="button" onClick="fnDisplayApps();">List apps</button>
       <button type="button" onClick="fnSkyboxRand();">Skybox</button>
       <button type="button" onClick="fn3DSpam();">Spam</button>
@@ -401,7 +400,8 @@
   </div>
 
   Splunk Search Input<br/>
-  <input id="uiTextIn" type="text" size="74">
+  <input id="uiTextIn" type="text" size="48">
+  <button type="button" onClick="fnSplunkSearch();">Search</button>
   <br/>
 
   <!-- Text output element -->
