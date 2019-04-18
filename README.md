@@ -2,10 +2,10 @@
 
 Mashup of DronesoundTV/Splunk SDK
 
-Almost ready for you to test! See Wiki https://github.com/diemastermonkey/splunk3d/wiki for info
+Almost ready for you! See Wiki https://github.com/diemastermonkey/splunk3d/wiki for info
 
-Early demo vid (d/l only):
-https://github.com/diemastermonkey/splunk3d/blob/master/screenshots/splunk3d-dev-demo-001.ogv?raw=true
+New demo vid! (d/l only):
+https://github.com/diemastermonkey/splunk3d/blob/master/screenshots/splunk3d-dev-demo-002.ogv?raw=true
 
 Requirements: Splunk 5.x +, Splunk Javascript SDK (w/Node.js), JQuery, Three.js, Tween.js
 
