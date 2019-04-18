@@ -46,14 +46,20 @@
     <script type="text/javascript" src="js/GeometryUtils.js"></script>
     <script type="text/javascript" src="js/Tween.js"></script>
 
-    <!-- Was: 3D controller ala DronesoundTV -->
+    <!-- 3D and UI Controller -->
     <script type="text/javascript">
       // Splunk.js helper objects
       var Async = splunkjs.Async;
       var utils = splunkjs.Utils;
       var sBuffer = "";
-      // retire // var iDebug = false;         // Onscreen debug enable
       var sDefaultSPL = "earliest = -8h | head 10"; // Default search
+      var oCreds = {
+        Username: "splunksdk",
+        Password: "splunksdk",
+        Scheme: "https",
+        Host: "localhost",
+        Port: "8089"                   // SplunkD, not SplunkWeb
+      };
 
       // Dev-only hardwired 3D/graphic assets
       var sTexturePath = "images/textures/";
@@ -66,9 +72,9 @@
         "granite", "graphpaper", "grass", 
         "gravel", "green", "grunge", "ice", "indigo", 
         "jungle", "lava", "leaf", "leaves", "metal", 
-        "mist", "moss", "mud", "oak", "orange", "ore", 
-        "purple", "red", "rock", "sand", "sb_carved", 
-        "sb_moss", "sb", "sky", "slime", "smoke", "snow", 
+        "mist", "mud", "oak", "orange", "ore", "purple", 
+        "red", "rock", "sand", "sb_carved", "sb_moss", 
+        "sb", "sky", "slime", "smoke", "snow", 
         "spruce", "stone", "tblack", "tbrown", "torange", 
         "trapdoor", "violet", "water", "white", "wood", 
         "worn", "yellow"
@@ -77,6 +83,15 @@
       var aSkyboxes   = ["alps", "arrakisday", "mainframe", 
         "met", "moondust", "mp_portal", "nightsky", "test"];
       var iSkyboxCount = aSkyboxes.length;
+
+      // Do any on-load ui init
+      function fnUIInit () {
+        $("#uiTextIn").val(sSPL);           // Default search SPL
+        // Dump all creds properties into form
+        for (var oProp in oCreds) {
+          $("#uiCreds" + oProp).val(eval("oCreds." + oProp));
+        }
+      }
 
       // Simple logging feature
       function fnLog (argString) {
@@ -95,24 +110,19 @@
         $("#uiTextOut").html(sBuffer); // Update (or clear)
       }
 
-      // -------------------------------
-      // Simple 3D Tests
-      // -------------------------------
-
-      // 3D spam. Remember, fnAddCube pre-deletes any existing at same pos
-      function fn3DTest (iArgMode) {
-        var sT;
-        fnCam (0, 600, 1000);         // Look at this pos
-        for (var iX = -1200; iX < 1400; iX += 600) {
-          for (var iY = -1500; iY < 700; iY += 600) {
-            sT = sTexturePath 
-              + aTextures[Math.floor(Math.random() * iTextureCount)]
-              + ".png"; 
-            // fnAddCube syntax: x y z size texture_url
-            fnAddCube (iX, iY, 1600, 250, sT);
-          }                           // End for
-        }                             // End for
-      }                               // End 3D test function
+      // Toggle server/creds entry ui
+      function fnCreds () {
+        // Simply swap uiFeatures/uiCreds visibility
+        oUIFeatures = $("#uiFeatures");
+        oUICreds = $("#uiCreds");
+        if (oUIFeatures.is(':visible')) {
+          oUIFeatures.hide();
+          oUICreds.show();
+        } else {
+          oUICreds.hide();
+          oUIFeatures.show();
+        }
+      }
 
       function fnSkyboxRand () {
         fnSkybox (aSkyboxes[Math.floor(Math.random() * iSkyboxCount)]);
@@ -167,6 +177,23 @@
         //
       }
 
+      // 3D spam. Remember, fnAddCube pre-deletes anything at same pos
+      function fn3DSpam (iArgMode) {
+        var sT;
+        fnOutput ("");
+        fnOutput ("Generating 3D Spam...");
+        fnCam (0, 600, 1000);         // Look at this pos
+        for (var iX = -1200; iX < 1400; iX += 600) {
+          for (var iY = -1500; iY < 700; iY += 600) {
+            sT = sTexturePath 
+              + aTextures[Math.floor(Math.random() * iTextureCount)]
+              + ".png"; 
+            // fnAddCube syntax: x y z size texture_url
+            fnAddCube (iX, iY, 1600, 250, sT);
+          }                           // End for
+        }                             // End for
+      }                               // End 3D test function
+
     </script>
     <!-- End 3D controller code -->
 
@@ -189,13 +216,15 @@
   
           // Create Splunk Service instance and log in 
           oSplunkService = new splunkjs.Service (oSplunkProxy, {
-            username: "splunksdk",   // WARN: Hardwired creds
-            password: "splunksdk",
-            scheme: "https",
-            host: "localhost",
-            port:"8089",             // Splunkd port (NOT splunk web)
+            // username: "splunksdk",   // WARN: Hardwired creds
+            username: sCreds.Username,
+            password: sCreds.Password,
+            scheme: sCreds.Scheme,
+            host: sCreds.Host,
+            port: sCreds.Port,
             version:"5.0"            // Min supported version
           });
+
           console.log ("fnConnect: Splunk connected, maybe.");
         } else {
           console.log ("fnConnect: Splunk already connected.");
@@ -205,6 +234,7 @@
       // From example code: List apps (assume connected already)
       function fnDisplayApps() {
         fnOutput ("");               // Clear output buffer/ui
+        fnOutput ("Listing installed Splunk apps...\n");
         fnConnect();                 // Connect Splunk if necessary
 
         // Print installed apps to the console
@@ -341,16 +371,26 @@
 <body>
   <!-- On document ready, init some fields -->
   <script type="text/javascript">
-    $(document).ready(function() {$("#uiTextIn").val(sSPL);});
+    $(document).ready(function() {fnUIInit();});
   </script>
 
   <!-- User interface -->
   <div id="controls" style="margin-bottom:1em;align:right;">
     <!-- Dev testing UI -->
-    <button type="button" onClick="fnSkyboxRand();">Skybox</button>
-    <button type="button" onClick="fn3DTest();">3D Spam</button>
-    <button type="button" onClick="fnDisplayApps();">List apps</button>
-    <button type="button" onClick="fnSplunkSearch();">Splunk Search</button>
+    <button type="button" onClick="fnCreds();">Server Info</button>
+    <span id="uiFeatures">
+      <button type="button" onClick="fnSplunkSearch();">Search</button>
+      <button type="button" onClick="fnDisplayApps();">List apps</button>
+      <button type="button" onClick="fnSkyboxRand();">Skybox</button>
+      <button type="button" onClick="fn3DSpam();">Spam</button>
+    </span>
+    <span id="uiCreds" style="display:none;">
+      <input id="uiCredsUsername"></input>
+      <input id="uiCredsPassword"></input>
+      <input id="uiCredsScheme"></input>
+      <input id="uiCredsHost"></input>
+      <input id="uiCredsPort"></input>
+    </span>
   </div>
 
   Input<br/>
