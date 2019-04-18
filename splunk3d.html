@@ -52,7 +52,7 @@
       var Async = splunkjs.Async;
       var utils = splunkjs.Utils;
       var sBuffer = "";
-      var sDefaultSPL = "earliest = -8h | head 10"; // Default search
+      var sDefaultSPL = "index=* earliest=-8h | head 10"; // Default search
       var oCreds = {
         Username: "splunksdk",
         Password: "splunksdk",
@@ -143,7 +143,7 @@
         fnSkybox (aSkyboxes[Math.floor(Math.random() * iSkyboxCount)]);
       }
 
-      // Generate 3D prim with properties based on argSeed,
+      // Generate 3D "event" prim with properties based on argSeed,
       // producing unique visual object for each type of data
       function fnGenerateObject (argSeed) {
         //
@@ -155,25 +155,18 @@
         var sT = sTexturePath 
            + aTextures[Math.floor(oRNG() * iTextureCount)]
            + ".png"; 
-        var fSize = oRNG() * 200 + 100;       // Range 100-300
+        var fSize = oRNG() * 100 + 50;       // Range of sizes
 
         // Set a known position (move later if need)
         // BECAUSE need position as name to fnSetName
         var iX = Math.floor(oRNG() * 2000) - 1000; // Also a range
-        var iY = Math.floor(oRNG() * 2000) - 1000;
-        var iZ = 1000;
+        var iY = Math.floor(oRNG() * 300) + 400;
+        var iZ = 1300;
 
-        var iType = Math.floor (oRNG() * 2);  // Only two now
-        if (iType == 0) {
-          // Make cube at known position (so can rename)
-          fnAddCube (iX, iY, iZ, fSize, sT);
-          //
-          // To do: Name it
-          //
-        } else {             // Else make a sphere
-          sT = "0x00ff00";   // RGB syntax cheat test
-          fnAddSphere (iX, iY, iZ, fSize, sT);
-        }
+        // New: All events are spheres
+        // To do: procgen color
+        sT = "0x00ff00";   // RGB syntax cheat test
+        fnAddSphere (iX, iY, iZ, fSize, sT);
 
         // Look at new object
         fnCamSet (0, 0, 1000);    // Optional // fnCam();
@@ -183,13 +176,38 @@
         // Alternatively, store name locally and reference later
         //
         fnLog ("fnGenerateObject:"
-          + " Type " + iType
           + " Texture " + sT
           + " Size " + fSize
         );
         //
         // TO DO: return (sObjectName);
         //
+      }
+
+      // Generate a "fountain source" for a sourcetype (string)
+      // Too similar to GenerateObject - to do, abstract common function
+      function fnSourceTypeObject (argSourceType) {
+        fnLog ("fnSourceTypeObject: Adding object for arg " + argSourceType);
+
+        // All sourcetypes are procgen'd cubes
+        var oRNG = new alea (argSourceType);
+
+        // X procgen'd, Y, Z, and size are fixed
+        var iX = fnSourceTypeX (argSourceType);
+        var iY = 400;
+        var iZ = 1300;
+
+        var sT = sTexturePath 
+          + aTextures[Math.floor(oRNG() * iTextureCount)]
+          + ".png"; 
+        fnAddCube (iX, iY, iZ, 250, sT);
+      }
+
+      // Helper to procgen X pos for a sourcetype
+      function fnSourceTypeX (argSourceType) {
+        var oRNG = new alea (argSourceType);
+        var iX = Math.floor(oRNG() * 2000) - 1000;
+        return (iX);
       }
 
       // 3D spam. Remember, fnAddCube pre-deletes anything at same pos
@@ -220,6 +238,7 @@
       // Note: Omits "search" so matches SplunkWeb
       var sSearchPrefix = "search ";  // Pre-pended later
       var sSPL = sDefaultSPL;
+      var aSourceTypes = [];          // Sourcetypes (strings), each search
   
       // Smrt Splunk connect: Connect only if needed
       function fnConnect () {
@@ -330,6 +349,8 @@
             argJob.results({}, done);        // Request results
           },
 
+          // Dev only: Generate 3D objects as search results return
+          // To do: Bundle-up results, iterate them elsewhere
           function (results, job, done) {    // Show raw results
             // Find the index of the fields we want
             var rawIndex        = utils.indexOf(results.fields, "_raw");
@@ -341,18 +362,26 @@
             fnOutput ("\n----------------------------------\n");
 
             // Handle individual result rows
+            var sSourceType, sRawEvent;
             for (var i = 0; i < results.rows.length; i++) {
-              // fnOutput ("Result " + i + ": ");
-              fnOutput ("Sourcetype: " + results.rows[i][sourcetypeIndex] + " | ");
+              sSourceType = results.rows[i][sourcetypeIndex];
+              sRawEvent = results.rows[i][rawIndex];
+              fnOutput ("Sourcetype: " + sSourceType + " | ");
+              fnOutput ("Raw: " + sRawEvent);
               // fnOutput (" User: " + results.rows[i][userIndex]);
               // fnOutput (" KV Pairs: " + results.rows[i][kvIndex]);
-              fnOutput (" Raw: " + results.rows[i][rawIndex]);
               fnOutput ("\n");
+
+              // Add to sourcetypes, generate sourcetype object if needed
+              if (! aSourceTypes.includes(sSourceType)) {
+                aSourceTypes.push(sSourceType);        // Add to array 
+                fnSourceTypeObject(sSourceType);
+              }
 
               // Crude Dev test: Create 3D object right here
               // To do: Return all results, iterate outside this
               // Use entire raw results string as seed (!)
-              fnGenerateObject (results.rows[i][rawIndex]);
+              fnGenerateObject (sRawEvent);
             }
             
             job.cancel(done);                // When done, cancel job
