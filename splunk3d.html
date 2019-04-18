@@ -91,7 +91,15 @@
         for (var oProp in oCreds) {
           $("#uiCreds" + oProp).val(eval("oCreds." + oProp));
         }
-      }
+
+        // Set an "enter" key handler to submit search
+        $(document).keypress (function (argEvent) {
+          var sKey = (
+            argEvent.keyCode ? argEvent.keyCode : argEvent.which
+          );
+          if (sKey == '13') { fnSplunkSearch(); }
+        });
+      }                                    // End fnUIInit
 
       // Simple logging feature
       function fnLog (argString) {
@@ -393,7 +401,8 @@
     <span id="uiCreds" style="display:none;">
       User <input id="uiCredsUsername" size="10"></input>
       Pass <input id="uiCredsPassword" size="10"></input>
-      <!-- disused --><input id="uiCredsScheme" style="display:none"></input>
+      <!-- Scheme disused -->
+      <input id="uiCredsScheme" style="display:none"></input>
       Host <input id="uiCredsHost" size="10"></input>
       Port <input id="uiCredsPort" size="10"></input>
     </span>
