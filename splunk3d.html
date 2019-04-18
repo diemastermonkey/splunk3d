@@ -84,10 +84,10 @@
         "met", "moondust", "mp_portal", "nightsky", "test"];
       var iSkyboxCount = aSkyboxes.length;
 
-      // Do any on-load ui init
+      // Do any on-load ui init (needs cleanup)
       function fnUIInit () {
         $("#uiTextIn").val(sSPL);           // Default search SPL
-        // Dump all creds properties into form
+        // Dump creds info into form
         for (var oProp in oCreds) {
           $("#uiCreds" + oProp).val(eval("oCreds." + oProp));
         }
@@ -111,7 +111,8 @@
       }
 
       // Toggle server/creds entry ui
-      function fnCreds () {
+      // Crude: On close, update all creds regardless if changed
+      function fnCredsUI () {
         // Simply swap uiFeatures/uiCreds visibility
         oUIFeatures = $("#uiFeatures");
         oUICreds = $("#uiCreds");
@@ -121,6 +122,12 @@
         } else {
           oUICreds.hide();
           oUIFeatures.show();
+          for (var oProp in oCreds) {
+            oCreds[oProp] = newVal;    // For display
+            var newVal = $("#uiCreds" + oProp).val();
+            fnOutput ("Setting " + oProp + " to " + newVal + "\n");
+          }
+          oSplunkService.logout();    // No work :(
         }
       }
 
@@ -217,11 +224,11 @@
           // Create Splunk Service instance and log in 
           oSplunkService = new splunkjs.Service (oSplunkProxy, {
             // username: "splunksdk",   // WARN: Hardwired creds
-            username: sCreds.Username,
-            password: sCreds.Password,
-            scheme: sCreds.Scheme,
-            host: sCreds.Host,
-            port: sCreds.Port,
+            username: oCreds.Username,
+            password: oCreds.Password,
+            scheme: oCreds.Scheme,
+            host: oCreds.Host,
+            port: oCreds.Port,
             version:"5.0"            // Min supported version
           });
 
@@ -230,7 +237,7 @@
           console.log ("fnConnect: Splunk already connected.");
         }                            // End if proxy/service
       }                              // End fnConnect
-  
+
       // From example code: List apps (assume connected already)
       function fnDisplayApps() {
         fnOutput ("");               // Clear output buffer/ui
@@ -377,7 +384,7 @@
   <!-- User interface -->
   <div id="controls" style="margin-bottom:1em;align:right;">
     <!-- Dev testing UI -->
-    <button type="button" onClick="fnCreds();">Server Info</button>
+    <button type="button" onClick="fnCredsUI();">Server</button>
     <span id="uiFeatures">
       <button type="button" onClick="fnSplunkSearch();">Search</button>
       <button type="button" onClick="fnDisplayApps();">List apps</button>
@@ -385,15 +392,15 @@
       <button type="button" onClick="fn3DSpam();">Spam</button>
     </span>
     <span id="uiCreds" style="display:none;">
-      <input id="uiCredsUsername"></input>
-      <input id="uiCredsPassword"></input>
-      <input id="uiCredsScheme"></input>
-      <input id="uiCredsHost"></input>
-      <input id="uiCredsPort"></input>
+      User <input id="uiCredsUsername" size="10"></input>
+      Pass <input id="uiCredsPassword" size="10"></input>
+      <!-- disused --><input id="uiCredsScheme" style="display:none"></input>
+      Host <input id="uiCredsHost" size="10"></input>
+      Port <input id="uiCredsPort" size="10"></input>
     </span>
   </div>
 
-  Input<br/>
+  Splunk Search Input<br/>
   <input id="uiTextIn" type="text" size="74">
   <br/>
 
