@@ -52,7 +52,7 @@
       var Async = splunkjs.Async;
       var utils = splunkjs.Utils;
       var sBuffer = "";
-      var sDefaultSPL = "index=* earliest=-8h | head 10"; // Default search
+      var sDefaultSPL = "index=* earliest=-24h | head 10"; // Default search
       var oCreds = {
         Username: "splunksdk",
         Password: "splunksdk",
@@ -135,7 +135,7 @@
             var newVal = $("#uiCreds" + oProp).val();
             fnOutput ("Setting " + oProp + " to " + newVal + "\n");
           }
-          oSplunkService.logout();    // No work :(
+          // Not working: // oSplunkService.logout();
         }
       }
 
@@ -198,9 +198,11 @@
         var iY = 400;
         var iZ = 1300;
 
-        var sT = sTexturePath 
-          + aTextures[Math.floor(oRNG() * iTextureCount)]
-          + ".png"; 
+        // Retired:
+        // var sT = sTexturePath 
+        //  + aTextures[Math.floor(oRNG() * iTextureCount)]
+        //  + ".png"; 
+        var sT = fnSourceTypeTexture (argSourceType);
         fnAddCube (iX, iY, iZ, 250, sT);
       }
 
@@ -209,6 +211,16 @@
         var oRNG = new alea (argSourceType);
         var iX = Math.floor(oRNG() * 2000) - 1000;
         return (iX);
+      }
+
+      // Procgen a texture arg sourcetype and return it
+      function fnSourceTypeTexture (argSourceType) {
+        var oRNG = new alea (argSourceType);
+        return (
+          sTexturePath 
+          + aTextures[Math.floor(oRNG() * iTextureCount)]
+          + ".png"
+        ); 
       }
 
       // 3D spam. Remember, fnAddCube pre-deletes anything at same pos
@@ -228,7 +240,7 @@
         }                             // End for
       }                               // End 3D test function
 
-      // Return a random RGB string in form "0xRRGGBB"
+      // Return a procgen RGB string in form "0xRRGGBB"
       // Pass-in Math.random, or other RNG (ex: alea)
       function fnRandomRGB (argORNG) {
         return (
@@ -435,6 +447,9 @@
       <button type="button" onClick="fnDisplayApps();">List apps</button>
       <button type="button" onClick="fnSkyboxRand();">Skybox</button>
       <button type="button" onClick="fn3DSpam();">Spam</button>
+      <img id="uiLegend_0" src="images/empty.png"></img>
+      <img id="uiLegend_1" src="images/empty.png"></img>
+      <img id="uiLegend_3" src="images/empty.png"></img>
     </span>
     <span id="uiCreds" style="display:none;">
       User <input id="uiCredsUsername" size="10"></input>
