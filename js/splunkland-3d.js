@@ -24,12 +24,12 @@ var sShoutoutName = "SplunkLand3D"; // Disused
 
 // Camera and cam motion
 // Retired // var fRotRateX = 0.008; var fRotRateY = 0.013;  // Disused
-var fCamRange = 1600;   // Max distance from home
-var fCamTime = 20000;   // Tween time ms larger is slower
+var fCamRange = 800;   // Max distance from home
+var fCamTime = 40000;   // Tween time ms larger is slower
 var bCamFree = false;   // If false, looks at oLookAt
 var fViewDistance = 9000; // Max clipping dist
 // Where cam centered, starts from
-var oCamHome = { x: 230, y: 555, z: -970};
+var oCamHome = { x: 230, y: 555, z: -1100};
 var oCamPos = oCamHome;
 var oCamGo = { x:0, y:0, z:0 };
 var oCamNext = null;

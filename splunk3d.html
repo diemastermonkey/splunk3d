@@ -33,6 +33,15 @@
     <meta charset="utf-8">
     <title>Splunk3d Prototype</title>
 
+    <style>
+      .legendimg  { width:32px; height:32px; padding:2px; }
+      .legendtext {
+        color:#0000ff;
+        /* position:absolute;  */
+        width:32px; height:32px; 
+      }
+    </style>
+
     <!-- Jquery required for SplunkSDK and our own Ajax -->
     <script type="text/javascript" src="js/jquery.min.js"></script>
     <!-- Alt:
@@ -397,6 +406,17 @@
               if (! aSourceTypes.includes(sSourceType)) {
                 aSourceTypes.push(sSourceType);        // Add to array 
                 fnSourceTypeObject(sSourceType);
+                // Add texture to legend
+                $("<span>" 
+                  + "<img class=\"legendimg\" src=" 
+                  + fnSourceTypeTexture(sSourceType)
+                  + "></img>"
+                  + "<span class=\"legendtext\">"
+                  + sSourceType
+                  + "</span>"   // End legendtext span
+                  + "</span>"   // end legentimg span
+                ).appendTo("#uiLegends");
+                fnLog ("Added SourceType to legend: " + sSourceType);
               }
 
               // Crude Dev test: Create 3D object right here
@@ -447,9 +467,10 @@
       <button type="button" onClick="fnDisplayApps();">List apps</button>
       <button type="button" onClick="fnSkyboxRand();">Skybox</button>
       <button type="button" onClick="fn3DSpam();">Spam</button>
-      <img id="uiLegend_0" src="images/empty.png"></img>
-      <img id="uiLegend_1" src="images/empty.png"></img>
-      <img id="uiLegend_3" src="images/empty.png"></img>
+      <!-- Span for 'legend' of textures/shapes -->
+      <span id="uiLegends">
+        <!-- Legend of textures goes here -->
+      </span>        <!-- End legend span -->
     </span>
     <span id="uiCreds" style="display:none;">
       User <input id="uiCredsUsername" size="10"></input>
